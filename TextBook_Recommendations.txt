@@ -1,0 +1,867 @@
+COMPUTER NETWORKS — ADDITIONAL TEXTBOOK NOTES
+ONLY POINTS MISSING FROM THE UPLOADED NOTES
+Kurose & Ross — Computer Networking: A Top-Down Approach (6th Ed.)
+
+============================================================
+CHAPTER 1 — COMPUTER NETWORKS AND THE INTERNET
+(Chapter 1: add highlighted textbook points not already in notes)
+============================================================
+
+1. INTERNET COMPONENTS / TERMINOLOGY
+
+- Host / End system: any device connected to the Internet; runs network applications.
+- Internet components: end systems + communication links + packet switches.
+- Link transmission rate: measured in bits/second (bps); links may have different rates.
+- Packet switch: receives packet on an incoming link and forwards it to an outgoing link.
+  - Router: typically used in network core.
+  - Link-layer switch: typically used in access networks.
+- Route / Path: sequence of communication links + packet switches traversed from source to destination.
+- ISP: independently managed network of packet switches + communication links; runs IP and follows common naming/address conventions.
+- TCP/IP: principal Internet protocols, collectively.
+- RFC (Request for Comments): IETF standards documents.
+- Internet API: rules an application program follows so the Internet delivers data to the destination program.
+- Protocol communication requires 2 or more entities running the same protocol.
+- Protocol specifies: message format + order + actions on transmission/reception/events.
+- Access network: connects an end system physically to its first-hop / edge router.
+
+2. NETWORK EDGE — ACCESS NETWORKS
+
+DSL:
+- Uses existing telephone copper infrastructure; telco is also usually the ISP.
+- Home DSL modem ↔ DSLAM at telephone company central office (CO).
+- DSLAM aggregates lines and connects to ISP network.
+- Asymmetric: downstream rate usually greater than upstream.
+- Designed for short home-to-CO distances; performance falls with distance.
+
+Cable Internet:
+- Uses cable-TV infrastructure; cable modem required.
+- HFC (Hybrid Fiber-Coax): combines fiber-optic cable + coaxial cable.
+- CMTS (Cable Modem Termination System) at cable head-end: converts signals from cable modems to digital format.
+- Separate downstream + upstream channels; usually asymmetric.
+- Shared broadcast medium: downstream packets travel to all homes on the shared segment; upstream transmissions share channel capacity.
+
+FTTH (Fiber to the Home):
+- Optical fiber path directly from CO to home.
+- AON: Active Optical Network; essentially switched Ethernet.
+- PON: Passive Optical Network; optical splitters distribute signals.
+- ONT (Optical Network Terminator): at home.
+- OLT (Optical Line Terminator): at CO; converts optical/electrical signals and connects to ISP router.
+
+Wireless Access:
+- Wireless LAN: devices communicate with an access point (AP) connected to enterprise/home wired network; Wi-Fi.
+- Cellular: base station provides wireless access; range can be tens of kilometres (Wi-Fi: typically tens of metres).
+- LTE: cellular broadband access technology.
+
+3. PHYSICAL MEDIA
+
+- Bit transmission: electromagnetic waves or optical pulses across a physical medium.
+- Guided media: signal guided along solid medium; twisted-pair copper, coaxial cable, optical fiber.
+- Unguided media: signal propagates through atmosphere/outer space; radio, wireless LAN, satellite.
+- Twisted pair: least expensive + commonly used guided medium; a wire pair forms one link.
+  - UTP (Unshielded Twisted Pair): common inside buildings/LANs.
+- Coaxial cable: two concentric copper conductors; can be used as shared medium.
+- Optical fiber: carries light pulses; high data rate, low attenuation; preferred for long-haul/undersea links; higher optical component cost can make it less common for short-haul LANs.
+- Radio channel: electromagnetic spectrum; used in wireless LAN/cellular.
+- Satellite link: microwave transmission between earth stations and satellite; GEO and LEO satellite systems.
+
+4. NETWORK CORE — PACKET SWITCHING DETAILS
+
+Store-and-Forward:
+- Router must receive/store the entire packet before transmitting it on the outgoing link.
+- For packet length L bits and link rate R bps: transmission delay = L/R.
+- Across N equal-rate store-and-forward links, ignoring propagation/processing/queueing: delay = N(L/R).
+- Pipeline effect: after first packet, bits of later packets can be transmitted while earlier packets are being forwarded.
+
+Queuing + Packet Loss:
+- Output buffer/queue: stores packets waiting for a busy outgoing link.
+- Queuing delay: time packet waits in queue; variable and increases with traffic load.
+- Finite buffer full → newly arriving packet (or queued packet) may be dropped = packet loss.
+- Traffic intensity = La/R, where L = average packet length (bits), a = average packet arrival rate (packets/s), R = link rate (bps).
+  - La/R < 1: long-run queue can be stable.
+  - La/R > 1: arrivals exceed service rate; queue grows without bound in an infinite-buffer model.
+  - As La/R approaches 1: average queuing delay rises sharply.
+
+5. CIRCUIT SWITCHING v/s PACKET SWITCHING
+
+Circuit Switching:
+- Reserves resources / link transmission rate along end-to-end path for duration of session.
+- Dedicated circuit; predictable reserved rate, even when no data is being sent.
+- Requires connection setup before data transfer.
+- FDM: each connection receives a dedicated frequency band; band width = bandwidth allocated.
+- TDM: time divided into repeating frames + fixed time slots; one slot per frame reserved for a connection.
+- TDM circuit rate = frame rate × bits per slot.
+- Inefficient when reserved circuit is idle; setup/signalling required.
+
+Packet Switching:
+- No per-connection link resources reserved; packets share link capacity on demand.
+- Packets may queue and experience variable delay during congestion.
+- Efficient statistical sharing; simpler/cheaper than dedicated circuits.
+- Best-effort Internet service: no guarantee of delivery, order, delay or bandwidth.
+
+6. INTERNET STRUCTURE — ISP INTERCONNECTION
+
+- PoP (Point of Presence): one or more routers at a provider location where customer networks connect.
+- Multi-homing: ISP connects to 2 or more providers; maintains connectivity if one provider fails.
+- Peering: nearby ISPs at same hierarchy level directly exchange traffic instead of routing via an upstream provider; often settlement-free.
+- IXP (Internet Exchange Point): facility with switches where multiple ISPs interconnect/peer.
+- Tier-1 ISP: top-level provider with global reachability; does not pay an upstream provider for Internet connectivity.
+- Content-provider network: large company operates its own global private network/data centres and peers directly with ISPs/IXPs to deliver content; may still use Tier-1 providers to reach networks it does not directly connect to.
+
+7. NETWORK DELAY, LOSS + THROUGHPUT
+
+Nodal Delay:
+d_nodal = d_processing + d_queueing + d_transmission + d_propagation
+
+- Processing delay: time to examine packet header, check errors and determine outgoing link.
+- Queueing delay: time waiting for packets already queued at the output link; depends on traffic intensity.
+- Transmission delay: d_trans = L/R; time to push all L bits onto link; depends on packet length + link rate, NOT distance.
+- Propagation delay: d_prop = d/s; d = physical link distance, s = propagation speed in medium; depends on distance, NOT packet length or link rate.
+- End-to-end delay: sum of nodal delays over each router/link along path.
+- Packet loss: occurs when a packet arrives at a full router buffer; transport layer may retransmit lost data.
+
+Throughput:
+- Throughput: rate (bits/s) at which data is delivered to receiver.
+- Average throughput for F-bit file delivered in T seconds = F/T.
+- Two-link path (server rate Rs, client-access rate Rc): throughput = min(Rs, Rc).
+- Multi-link path: throughput = minimum link rate along path = bottleneck link capacity.
+
+8. INTERNET PROTOCOL STACK + ENCAPSULATION
+
+Internet 5-layer stack:
+Application: message
+Transport: segment
+Network: datagram
+Link: frame
+Physical: bits
+
+- Each layer provides a service to the layer above and uses the service of the layer below.
+- Protocol stack: protocols at all layers of a network architecture.
+- Hosts implement all 5 Internet layers; routers generally process network/link/physical layers; link-layer switches process link/physical layers.
+- Encapsulation at sender:
+  Application message M → add transport header Ht → segment → add network header Hn → datagram → add link header/trailer Hl → frame → bits.
+- Each lower-layer packet carries the complete upper-layer packet as its payload.
+- Decapsulation: destination removes headers/trailers in reverse order and passes data upward.
+- Different link-layer protocols may carry the same IP datagram over different hops.
+
+============================================================
+CHAPTER 2 — APPLICATION LAYER
+(Chapter 2: add highlighted textbook points not already in notes)
+============================================================
+
+1. APPLICATION / TRANSPORT SERVICE REQUIREMENTS
+
+- Application requirements may include: reliable data transfer, throughput, timing and security.
+- Loss-sensitive application: requires reliable delivery (e.g., file transfer, email).
+- Loss-tolerant application: can tolerate some packet loss (e.g., real-time audio/video).
+- Bandwidth-sensitive application: needs a minimum throughput to be useful.
+- Elastic application: uses as much available throughput as the network can provide.
+- Timing-sensitive application: needs low delay / low delay variation.
+- Internet transport choices:
+  TCP: reliable byte stream, connection-oriented, congestion control, flow control; no hard bandwidth or delay guarantee.
+  UDP: connectionless, no delivery/order guarantee, no built-in congestion or flow control; low overhead and no handshake delay.
+- Socket: application/transport interface (software door) through which a process sends/receives messages.
+- Process addressing requires destination host IP address + destination port number.
+
+2. HTTP — WEB OBJECTS + CONNECTION BEHAVIOUR
+
+- Web page: base HTML file + referenced objects (images, scripts, video, etc.).
+- Each object has its own URL; URL identifies host + object path.
+- HTTP client and server communicate over TCP; client initiates TCP connection, server accepts.
+- HTTP is stateless: server does not retain past client-request state by default.
+
+Non-Persistent v/s Persistent HTTP:
+- Non-persistent: one TCP connection per object; connection closed after response.
+- Persistent: same TCP connection reused for multiple objects/requests; server keeps connection open until timeout/close.
+- Approx. non-persistent HTTP response time for one object: 2 RTTs + object transmission time (1 RTT for TCP handshake + 1 RTT for request/first response byte).
+- Persistent HTTP avoids repeated TCP handshakes; pipelining can send multiple requests without waiting for each response.
+
+HTTP Request Format:
+- Request line: method + URL + HTTP version.
+- Header lines follow; blank line separates headers from optional message body.
+- GET: retrieve object; usually no entity body.
+- POST: send user/form data in request body.
+- HEAD: same as GET but returns response headers only (no object body).
+- PUT: upload/replace object at specified server path.
+- DELETE: request deletion of specified object.
+- Host: hostname in request; important for proxy caching/virtual hosting.
+- Connection: close: asks server to close TCP connection after response.
+- User-Agent: identifies client/browser.
+- Accept-Language: indicates preferred language/content negotiation.
+
+HTTP Response:
+- Status line: HTTP version + status code + reason phrase; followed by headers, blank line and optional body.
+- Last-Modified: timestamp of object’s latest modification; used by caches.
+- 200 OK: request successful.
+- 301 Moved Permanently: new URL supplied in Location header.
+- 400 Bad Request: server cannot understand malformed request.
+- 404 Not Found: requested object not found.
+- 400 Bad Request; 401 Unauthorized (correction: 401 is NOT “Bad Request”).
+- 505 HTTP Version Not Supported.
+
+3. COOKIES + WEB CACHING
+
+Cookies:
+- Set-Cookie in HTTP response; Cookie header in later HTTP requests.
+- Browser stores cookie; server-side database stores associated user/session data.
+- Allows a stateless HTTP protocol to support sessions, login state and personalization.
+
+Web Cache / Proxy:
+- Cache acts as server to client and client to origin server.
+- Cache hit: return stored object directly.
+- Cache miss: request object from origin server, store copy, forward to client.
+- Reduces response time and traffic on access links/origin servers.
+- CDN: geographically distributed cache/server locations place content closer to users.
+
+Conditional GET:
+- Client sends GET + If-Modified-Since header using cached object’s Last-Modified date.
+- If unchanged: server replies 304 Not Modified (no object body).
+- If modified: server replies 200 OK with updated object.
+- Saves bandwidth by avoiding retransmission of unchanged objects.
+
+4. FTP — CONTROL AND DATA CONNECTIONS
+
+- FTP uses two separate TCP connections:
+  Control connection: carries commands/replies; server listens on TCP port 21; persists for the FTP session.
+  Data connection: transfers actual file/listing; separate connection, typically opened for each file transfer.
+- Out-of-band control: commands and data travel on separate connections.
+- FTP maintains per-user/session state (e.g., current directory and authentication).
+- Client commands have corresponding server replies; FTP replies use 3-digit codes.
+- Common commands: USER/PASS (login), LIST (directory listing), RETR (download), STOR (upload).
+- Active/passive transfer modes are distinct ways to establish the data connection.
+
+5. EMAIL — MESSAGE FLOW + ACCESS PROTOCOLS
+
+Email components:
+- User Agent (UA): compose, read, reply, forward and store messages.
+- Mail servers: outgoing queue + recipient mailboxes.
+- Flow: sender UA → sender mail server → recipient mail server → recipient mailbox/UA.
+- If recipient server unavailable: sender server queues and retries; after prolonged failure it may remove message and notify sender.
+
+SMTP v/s HTTP:
+- SMTP: push protocol; sender’s mail server initiates transfer to recipient’s mail server over TCP.
+- HTTP: pull protocol; browser requests/pulls content from server.
+- SMTP message body historically restricted to 7-bit ASCII; MIME extends this for non-ASCII/multimedia data.
+- SMTP transfers mail server-to-server; webmail uses HTTP between browser and mail server, while inter-mail-server transfer still uses SMTP.
+
+POP3:
+- TCP port 110.
+- 3 phases: Authorization → Transaction → Update.
+- Simple download-oriented access; does not provide remote folder creation/search like IMAP.
+
+IMAP:
+- Mail remains organized on server in folders (INBOX + user-created folders).
+- Supports moving/deleting/searching messages and fetching message parts.
+- Maintains user state across sessions; useful when accessing mailbox from multiple devices or low-bandwidth connections.
+
+6. DNS — HIERARCHY + OPERATION
+
+- DNS protocol: application layer; queries/replies normally use UDP port 53.
+- DNS used by HTTP, SMTP and FTP to translate hostnames into IP addresses.
+- Nearby/local DNS cache reduces DNS traffic and lookup delay.
+- DNS is distributed/hierarchical because a single central database would create:
+  single point of failure, high query traffic, long delays for distant clients, maintenance problems and poor scalability.
+
+DNS server hierarchy:
+1. Root DNS servers: direct query toward appropriate TLD server; 13 logical root-server identities (each is implemented by replicated server instances).
+2. TLD DNS servers: responsible for top-level domains such as .com, .org, .edu and country-code domains.
+3. Authoritative DNS servers: hold an organization/domain’s official hostname-to-IP records.
+4. Local DNS server: usually provided by ISP/organization; acts as a proxy/resolver for hosts and is not strictly part of the global hierarchy.
+
+Typical lookup:
+- Host asks local DNS resolver.
+- Resolver queries root → TLD → authoritative server (iterative referrals) and returns the result to host.
+- Recursive query: contacted DNS server takes responsibility for completing lookup on behalf of requester; can add load to that server.
+- DNS records are cached subject to their TTL.
+
+DNS load distribution:
+- One hostname can map to multiple server IP addresses.
+- DNS reply can contain multiple IPs; address order may be rotated to distribute client requests among replicated servers.
+
+Resource-record meanings:
+A: hostname → IPv4 address.
+AAAA: hostname → IPv6 address.
+NS: authoritative name server for domain.
+CNAME: alias hostname → canonical hostname.
+MX: mail exchanger for domain.
+PTR: reverse lookup (IP address → name).
+TXT: text data associated with domain.
+
+============================================================
+CHAPTER 3 — TRANSPORT LAYER
+(Additional textbook material not in the existing Transport / Data Link / Congestion notes)
+============================================================
+
+1. UDP DETAILS
+
+- UDP: minimal transport protocol; adds process multiplexing/demultiplexing + lightweight error checking to IP.
+- No handshake, connection state, reliability, ordering, flow control or congestion control.
+- UDP header = 8 bytes; four 16-bit fields:
+  Source Port | Destination Port | Length | Checksum
+- Length: total UDP segment length in bytes (header + data).
+- Checksum: 1's complement of sum of 16-bit words; overflow wraps around; complement is placed in checksum field.
+- Receiver adds all 16-bit words including checksum; valid result = 1111111111111111 (all 1s).
+- UDP checksum also uses selected IP pseudo-header fields for end-to-end error detection.
+- Error detected: UDP may discard segment or pass it to application with warning; UDP itself does not recover.
+- End-to-end checksum remains useful even if link-layer checks exist: not every link checks errors and corruption can occur in router memory.
+- UDP advantages: no connection-establishment delay; no per-connection state; 8-byte header; application controls when/how fast data is sent.
+- Common UDP uses in textbook: DNS, RIP, SNMP; multimedia may use UDP or TCP.
+
+2. RELIABLE DATA TRANSFER — RDT 3.0
+
+- RDT 3.0: handles both bit corruption and packet loss; uses checksum + ACK/NAK + sequence numbers + timeout/retransmission.
+- Uses alternating-bit protocol: sequence numbers 0 and 1 distinguish new packets from retransmissions/duplicates.
+- Sender starts timer after sending; timeout with no ACK → retransmit same packet.
+- Lost data packet and lost ACK are indistinguishable to sender → retransmission handles both.
+- Receiver uses sequence number to discard duplicate retransmission and ACK the expected packet.
+
+3. TCP CONNECTION + DATA STREAM
+
+- TCP connection: logical end-to-end connection between exactly 2 processes; point-to-point, full-duplex, byte-stream service.
+- Not a circuit: routers do not maintain TCP connection state; state/buffers/variables live at end hosts.
+- TCP byte stream: no application message boundaries; TCP groups bytes into segments at its convenience.
+- Each end has send buffer + receive buffer.
+- MSS (Maximum Segment Size): maximum application data bytes carried in one TCP segment; chosen so TCP segment + TCP/IP headers fit the path link-layer MTU.
+- MSS is data-field size, NOT total TCP segment size.
+- Textbook example: MSS = 1500 bytes for Ethernet/PPP in its stated setup.
+
+4. TCP SEGMENT HEADER
+
+- Source port: 16 bits.
+- Destination port: 16 bits.
+- Sequence number: 32 bits; byte number of first data byte in segment.
+- Acknowledgment number: 32 bits; next byte expected.
+- Header length / data offset: 4 bits; TCP header length measured in 32-bit words.
+- Receive window (rwnd): 16 bits; receiver-advertised buffer space for flow control.
+- Checksum: 16 bits.
+- Urgent pointer: 16 bits; identifies end of urgent data when URG set.
+- Flags (6): URG, ACK, PSH, RST, SYN, FIN.
+  ACK: acknowledgment field valid.
+  SYN: connection setup.
+  FIN: connection teardown.
+  RST: reset/reject connection.
+  PSH: push data promptly to application.
+  URG: urgent data present.
+- Options: variable length; can negotiate MSS, window scaling and timestamps.
+- Typical TCP header = 20 bytes when options absent.
+- PSH, URG and urgent pointer are rarely used in practice (as described by textbook).
+
+5. TCP RTT ESTIMATION + TIMEOUT
+
+- SampleRTT: time from segment transmission until its ACK arrives.
+- TCP samples one outstanding segment at a time; does NOT sample a retransmitted segment (Karn’s rule).
+- EstimatedRTT: exponential weighted moving average:
+  EstimatedRTT = (1 − α) × EstimatedRTT + α × SampleRTT
+  Recommended α = 0.125.
+- DevRTT: estimated variation around EstimatedRTT:
+  DevRTT = (1 − β) × DevRTT + β × |SampleRTT − EstimatedRTT|
+  Recommended β = 0.25.
+- TimeoutInterval = EstimatedRTT + 4 × DevRTT.
+- Initial TimeoutInterval recommended = 1 second.
+- On timeout: double TimeoutInterval (exponential backoff); after a new RTT sample, recompute from EstimatedRTT + 4DevRTT.
+
+6. TCP RELIABLE DATA TRANSFER
+
+- TCP uses one retransmission timer, associated with the oldest unacknowledged segment (SendBase).
+- Timeout: retransmit the oldest unacknowledged segment; restart timer.
+- ACKs are cumulative: ACK = y confirms all bytes before y received in order.
+- If ACK number > SendBase: advance SendBase; restart timer only if outstanding data remains.
+- Duplicate ACK: receiver repeats ACK for last in-order byte when it receives an out-of-order segment (gap detected).
+- 3 duplicate ACKs → Fast Retransmit: retransmit missing segment before timeout.
+- TCP does not use explicit NAK; duplicate ACKs act as implicit loss indication.
+- TCP recovery is a hybrid of GBN + SR:
+  GBN-like: cumulative ACKs and oldest-unacknowledged base.
+  SR-like: many implementations buffer correctly received out-of-order segments; SACK extension selectively acknowledges out-of-order data.
+
+7. TCP FLOW CONTROL — RECEIVE WINDOW
+
+- Flow control protects receiver’s finite receive buffer; matches sender rate to application’s read rate.
+- RcvBuffer: allocated receive-buffer size.
+- LastByteRcvd: highest byte received into buffer.
+- LastByteRead: highest byte read by receiving application.
+- rwnd = RcvBuffer − (LastByteRcvd − LastByteRead).
+- Receiver advertises rwnd in TCP receive-window field.
+- Sender constraint: LastByteSent − LastByteAcked ≤ rwnd.
+- If rwnd = 0: sender sends 1-byte probe segments until receiver advertises a non-zero window.
+- UDP provides no transport-layer flow control; UDP receive buffer can overflow if application reads too slowly.
+
+8. TCP CONNECTION MANAGEMENT
+
+Three-way handshake:
+1. Client → SYN=1, sequence = client_isn (random initial sequence number).
+2. Server → SYN=1, ACK=client_isn+1, sequence = server_isn; server allocates buffers/variables.
+3. Client → ACK=server_isn+1, SYN=0; may carry application data.
+- First two handshake segments carry no application data; third may carry data.
+
+Connection termination:
+- FIN → ACK → FIN → ACK (typically 4 segments).
+- TIME_WAIT: client waits before fully closing so it can retransmit final ACK if lost; textbook typical values: 30 sec, 1 min or 2 min.
+- Server states include LISTEN, SYN_RCVD, ESTABLISHED, CLOSE_WAIT, LAST_ACK; client includes CLOSED, SYN_SENT, ESTABLISHED, FIN_WAIT_1, FIN_WAIT_2, TIME_WAIT.
+- Unknown/unmatched TCP port/socket: host may reply with RST.
+
+SYN Flood:
+- Attacker sends many SYNs without completing third handshake step; server allocates resources for half-open connections → resource exhaustion / DoS.
+- SYN cookies: server encodes connection information into SYNACK initial sequence number using a secret hash; delays allocating full state until valid final ACK returns.
+
+9. TCP CONGESTION CONTROL — MECHANICS
+
+- cwnd: sender congestion window; limits unacknowledged/in-flight data due to network capacity.
+- Approx. sending rate = cwnd/RTT.
+- Actual sending window = min(cwnd, rwnd).
+- ssthresh: slow-start threshold separating exponential growth from linear congestion avoidance.
+
+Slow Start:
+- Start cwnd ≈ 1 MSS.
+- Increase cwnd by 1 MSS for each newly ACKed segment.
+- Approximately doubles cwnd every RTT (exponential growth).
+- Continue until cwnd reaches ssthresh or loss occurs.
+
+Congestion Avoidance:
+- Increase cwnd by approximately 1 MSS per RTT (linear growth).
+- Per new ACK: increase cwnd by about MSS × (MSS/cwnd).
+
+Timeout loss:
+- ssthresh = cwnd/2 (value before loss).
+- cwnd = 1 MSS; return to Slow Start.
+- Timeout interval also backs off exponentially.
+
+3 duplicate ACK loss (TCP Reno):
+- ssthresh = cwnd/2.
+- Fast retransmit missing segment.
+- Fast Recovery: cwnd = ssthresh + 3 MSS; each additional duplicate ACK adds 1 MSS.
+- When ACK for missing segment arrives: cwnd = ssthresh; enter Congestion Avoidance.
+- If timeout occurs during Fast Recovery: cwnd = 1 MSS; return to Slow Start.
+
+TCP Tahoe v/s Reno:
+- Tahoe: after timeout OR 3 duplicate ACKs, cwnd → 1 MSS; Slow Start.
+- Reno: after 3 duplicate ACKs, halves cwnd + Fast Recovery; after timeout, cwnd → 1 MSS.
+- AIMD: +1 MSS/RTT (additive increase); halve cwnd on 3-duplicate-ACK loss (multiplicative decrease) → saw-tooth pattern.
+
+TCP fairness:
+- Ideal: K TCP flows sharing bottleneck rate R each receive ≈ R/K.
+- AIMD tends toward equal bandwidth share under ideal equal-RTT/equal-MSS conditions.
+- Smaller-RTT flows can obtain more throughput than larger-RTT flows.
+- UDP flows without congestion control can crowd out TCP flows.
+- Application opening multiple parallel TCP connections can obtain a larger share than an application using one connection.
+- Idealized TCP average throughput when max congestion window is W: ≈ 0.75 × W/RTT.
+
+Textbook sidebar — TCP splitting:
+- Front-end server near user terminates client TCP and maintains a separate persistent TCP connection to distant data centre; reduces long-RTT/slow-start response delay.
+
+============================================================
+CHAPTER 4 — THE NETWORK LAYER
+(Additional textbook material not already in Network / Flow-Control notes)
+============================================================
+
+1. FORWARDING v/s ROUTING
+
+Forwarding:
+- Router-local action: move arriving packet from input interface to correct output interface.
+- Uses packet-header field to index forwarding table.
+
+Routing:
+- Network-wide process: determine end-to-end path from source to destination.
+- Routing algorithms calculate paths and configure forwarding tables.
+
+- Link-layer switch: forwards using Layer-2 frame/MAC fields.
+- Router: forwards using Layer-3 network-layer fields (e.g., destination IP prefix).
+- Some network-layer architectures also have connection setup as a third function (VC networks).
+
+2. NETWORK-LAYER SERVICE MODEL
+
+Possible services (not all provided by Internet IP):
+- Guaranteed packet delivery.
+- Guaranteed delivery within a maximum delay.
+- In-order packet delivery.
+- Guaranteed minimum bandwidth.
+- Guaranteed maximum jitter (bounded variation in packet spacing).
+- Security: confidentiality, integrity, source authentication.
+- Internet IP provides best-effort service: no guarantees for delivery, order, delay, bandwidth or jitter.
+
+3. VIRTUAL-CIRCUIT v/s DATAGRAM NETWORKS
+
+Virtual Circuit (VC):
+- Connection-oriented network-layer service; setup before data transfer.
+- VC consists of: path + VC number on each link + forwarding-table entry at each router.
+- VC number may change at every hop; router translates incoming VC number to outgoing VC number/interface.
+- Router maintains per-connection state; setup creates entries, teardown removes them.
+- Phases: VC setup → data transfer → VC teardown.
+- Examples: ATM, Frame Relay, MPLS.
+
+Datagram Network:
+- Connectionless; no setup or per-flow router state.
+- Each packet carries destination address; each router independently looks up forwarding table.
+- Packets from same source-destination pair may follow different paths and arrive out of order.
+- Internet IP is a datagram network.
+
+Network-layer service is host-to-host; transport-layer service is process-to-process.
+Transport TCP connection state is maintained at end hosts; VC network state is maintained in routers + end systems.
+
+4. ROUTER QUEUEING + SCHEDULING DETAILS
+
+- Input queueing: packets wait at input ports when switching fabric cannot move them fast enough.
+- Head-of-Line (HOL) blocking: first packet in input queue waits for a busy output and blocks packets behind it, even if they target free outputs.
+- Output queueing: packets wait for outgoing link when multiple inputs send to same output; finite buffer can overflow and drop packets.
+- Switching fabric types:
+  Memory: packet copied through router memory; throughput limited by memory bandwidth.
+  Bus: input transfers packet across shared bus; one packet at a time over bus.
+  Crossbar / interconnection network: multiple input-output transfers can occur in parallel when they use different outputs.
+- Input-port forwarding lookup can use a local/shadow copy of forwarding table; avoids involving routing processor for every packet.
+- Output scheduling policies:
+  FIFO/FCFS: transmit in arrival order.
+  Priority scheduling: higher-priority queue served first.
+  WFQ (Weighted Fair Queuing): shares output capacity among classes/flows according to weights.
+- Drop-tail: discard arriving packet when queue is full.
+- RED (Random Early Detection): AQM mechanism; uses average queue length and probabilistically drops/marks packets before buffer becomes full.
+
+5. ICMP + DIAGNOSTIC TOOLS
+
+ICMP (Internet Control Message Protocol):
+- Used by hosts/routers to report network-layer errors and diagnostic information.
+- ICMP messages are carried inside IP datagrams (ICMP is above IP, although often treated as part of IP).
+- Message contains Type + Code; also includes IP header + first 8 bytes of datagram that caused the message.
+- Common types/codes:
+  Type 8, Code 0: Echo Request (ping).
+  Type 0, Code 0: Echo Reply.
+  Type 3: Destination Unreachable (codes include network/host/protocol/port unreachable).
+  Type 11, Code 0: TTL Expired.
+  Type 9/10: Router Advertisement / Router Discovery.
+  Type 12: IP Header Problem.
+- Source Quench (Type 4, Code 0): original congestion-feedback message; now seldom used/obsolete.
+
+Traceroute:
+- Sends probe datagrams with increasing TTL values (1, 2, 3, ...).
+- Each router decrements TTL; when TTL becomes 0, router drops datagram and returns ICMP Type 11 Code 0.
+- Source records router IP/name + RTT for each hop.
+- When probe reaches destination, unlikely UDP destination port causes ICMP Type 3 Code 3 (Port Unreachable); source knows trace is complete.
+- Standard traceroute sends multiple probes (commonly 3) per TTL.
+
+Firewall / IDS:
+- Firewall: filters packet/segment headers using source/destination IP, ports, ICMP type, and/or TCP connection state.
+- IDS (Intrusion Detection System): deep packet inspection of headers + payload; compares against attack signatures and raises alerts.
+- IPS: IDS-like system that can also block malicious packets.
+
+6. IPv6 TRANSITION
+
+- Dual stack: host/router runs both IPv4 and IPv6; chooses protocol according to destination/support.
+- Tunneling: IPv6 datagram encapsulated inside IPv4 datagram across IPv4-only section of path.
+- Tunnel ingress adds IPv4 header; intermediate IPv4 routers forward normally; tunnel egress removes IPv4 header and continues IPv6 forwarding.
+- “Flag day” simultaneous conversion of the entire Internet is impractical.
+
+7. IPsec — NETWORK-LAYER SECURITY
+
+- IPsec: network-layer security protocol; backward-compatible with IPv4 + IPv6; commonly used in VPNs.
+- Provides: cryptographic/key agreement, payload encryption, data integrity, origin/source authentication.
+- Transport mode: hosts establish IPsec session; TCP/UDP segments protected between the two hosts; other routers need not run IPsec.
+- IPsec protects traffic for multiple applications at network layer (blanket host-to-host protection).
+
+8. ROUTING ALGORITHM CLASSIFICATION + GRAPH MODEL
+
+- Network represented as graph G=(N,E): routers = nodes; links = edges; each edge has cost c(x,y).
+- Path cost = sum of edge costs; routing objective typically least-cost path.
+- Link cost may represent distance, link speed/capacity, delay or monetary cost.
+- Global / Link-State: every router obtains complete topology + link costs.
+- Decentralized / Distance-Vector: each router knows costs to neighbours and iteratively exchanges distance vectors.
+- Static routing: routes change slowly / manual configuration.
+- Dynamic routing: routes change with topology or cost changes; may be periodic or event-triggered.
+- Load-sensitive routing: link costs reflect current congestion; modern Internet RIP/OSPF/BGP are generally load-insensitive.
+
+Dijkstra / Link-State algorithm:
+1. Initialise N'={source u}; D(v)=c(u,v) for direct neighbours, else ∞.
+2. Select node w outside N' with minimum tentative D(w); add w to N'.
+3. For each neighbour v of w not in N': D(v)=min[D(v), D(w)+c(w,v)].
+4. Repeat until all nodes are included.
+- D(v): current least-cost estimate from source to v.
+- p(v): predecessor of v on current least-cost path.
+- After termination, predecessor/next-hop information builds forwarding table.
+- Basic implementation complexity: O(N²); heap-based implementation can improve it.
+
+9. HIERARCHICAL ROUTING + BGP
+
+- Autonomous System (AS): group of routers/networks under one administrative control; each AS has unique AS number.
+- Intra-AS routing: routing within one AS; examples RIP, OSPF, IS-IS.
+- Inter-AS routing: routing between ASs; BGP.
+- Gateway/border router: connects one AS to another.
+- Hierarchy reduces global routing-table size and separates administrative policy.
+
+RIP additions:
+- RIP metric = hop count; each traversed subnet counts as a hop.
+- Maximum route cost = 15 hops (16 means unreachable); limits AS diameter.
+- RIP request/response messages use UDP port 520.
+- Each response can advertise up to 25 destination subnet entries.
+
+OSPF additions:
+- OSPFv2 specified in RFC 2328; messages carried directly over IP (IP protocol number 89).
+- HELLO messages check neighbour/link status.
+- Link costs configured by network administrator (e.g., 1 for each link or inverse to capacity).
+- Supports equal-cost multipath: multiple least-cost paths may be used.
+- Hierarchical OSPF: AS divided into areas; routers flood LS information within their area.
+- Area Border Router (ABR): connects an area to backbone/other areas.
+- One backbone area (Area 0) connects areas; inter-area packets travel via ABRs/backbone.
+- OSPF exchanges can be authenticated; sequence numbers help prevent replay of old LS updates.
+
+BGP (Border Gateway Protocol):
+- Standard inter-AS routing protocol (BGP-4); path-vector protocol.
+- BGP routers exchange reachability information over semi-permanent TCP connections, port 179.
+- Advertises destination prefixes + path attributes (notably AS-PATH and NEXT-HOP).
+- AS-PATH: sequence of AS numbers traversed; detects/prevents routing loops.
+- eBGP: BGP between routers in different ASs.
+- iBGP: BGP between routers within the same AS; distributes external routes internally.
+- Route choice uses reachability + local administrative policy, not simply shortest hop/cost.
+- Policy determines which routes an AS accepts and advertises to neighbours.
+- Hot-potato routing: choose nearest/lowest intra-AS-cost exit gateway for traffic leaving the AS.
+- BGP messages: OPEN (establish peer session), UPDATE (advertise/withdraw routes), KEEPALIVE (maintain session), NOTIFICATION (error/close session).
+
+10. BROADCAST + MULTICAST ROUTING
+
+Broadcast:
+- One source sends packet to all nodes in network.
+- N-way unicast: source sends separate copy to each destination; simple but wastes bandwidth and requires knowing all destinations.
+- Flooding: router forwards received packet on all outgoing links except incoming link; duplicates/loops possible.
+- Controlled flooding: use source + sequence number (or TTL) to identify duplicates and limit propagation.
+- Spanning-tree broadcast: forward only along a spanning tree; avoids loops and duplicate delivery.
+- Reverse Path Forwarding (RPF): router forwards broadcast packet only if it arrives on the interface that lies on the router’s shortest/unicast path back to source; then forwards on other interfaces. Otherwise discard.
+
+Multicast:
+- One sender → selected group of receivers (not every network node).
+- Hosts join/leave multicast groups; routers maintain group membership/forwarding state.
+- IGMP (IPv4): host ↔ directly attached router membership protocol; supports group queries/reports/leave.
+- ICMPv6 incorporates IGMP-like multicast membership functionality.
+- Multicast distribution tree connects routers with group members.
+- Shared/group-shared tree: one tree used by all senders in group; typically rooted at rendezvous/central point.
+- Source-based tree: separate tree per source; often uses RPF.
+- Pruning: router with no downstream group members sends prune upstream to stop unwanted multicast traffic.
+- DVMRP: source-based RPF + prune.
+- PIM Dense Mode: flood-and-prune; for groups with many members in domain.
+- PIM Sparse Mode: rendezvous-point/shared-tree approach; for widely dispersed/small receiver groups.
+- SSM (Source-Specific Multicast): only one designated source sends to group; simplifies tree maintenance.
+
+============================================================
+CHAPTER 5 — THE LINK LAYER: LINKS, ACCESS NETWORKS AND LANs
+(Additional textbook material not in existing Data Link notes)
+============================================================
+
+1. IDEAL MULTIPLE-ACCESS PROTOCOL
+
+For a broadcast channel of rate R:
+- One active node: should obtain full rate R.
+- M active nodes: each should average R/M.
+- Decentralized: no master node / single point of failure.
+- Simple + inexpensive to implement.
+
+Three MAC protocol categories:
+1. Channel partitioning: divide channel into time/frequency/code pieces.
+2. Random access: allow collisions; recover/retransmit.
+3. Taking turns: nodes transmit in controlled sequence.
+
+2. CHANNEL-PARTITIONING PROTOCOLS
+
+TDM:
+- Divide time into repeating frames, each with N time slots for N nodes.
+- One slot assigned per node; collision-free and fair.
+- Each node gets average R/N even if it is the only active node; must wait for its slot.
+
+FDM:
+- Divide channel bandwidth into N frequency bands; one band per node.
+- Collision-free; each node has dedicated frequency share.
+- Idle node’s allocated band is wasted.
+
+CDMA:
+- Assign each node a unique code.
+- Nodes can transmit simultaneously; receiver uses sender’s code to recover data despite other transmissions.
+- Used in cellular systems; code allocation required.
+
+3. ALOHA PROTOCOLS
+
+Slotted ALOHA:
+- All frames length L bits; slot duration = L/R seconds.
+- Time synchronized; transmission allowed only at slot beginnings.
+- Node transmits a new frame in next slot.
+- If collision: retransmit in each later slot with probability p; remain silent with probability 1−p.
+- For N nodes, probability exactly one node transmits in a slot = Np(1−p)^(N−1).
+- Maximum efficiency as N becomes large = 1/e ≈ 0.368 (about 37%).
+
+Pure ALOHA:
+- No slot synchronization; transmit immediately when frame is ready.
+- After collision: wait random time, then retransmit probabilistically.
+- Vulnerable period = 2 frame-transmission times.
+- Maximum efficiency = 1/(2e) ≈ 0.184 (about 18%); half of slotted ALOHA.
+
+4. CSMA + CSMA/CD
+
+CSMA (Carrier Sense Multiple Access):
+- Listen before transmitting; if channel busy, wait; if idle, transmit.
+- Collision still possible because propagation delay means another node may not yet hear the first node’s transmission.
+- Larger propagation delay → higher collision probability.
+
+CSMA/CD (Collision Detection):
+1. Adapter gets datagram, creates frame and buffers it.
+2. Sense channel; transmit when idle (wait if busy).
+3. Continue listening while transmitting.
+4. If collision detected: abort transmission (stop sending frame).
+5. Wait random backoff, then sense/transmit again.
+- Detecting collision avoids wasting the rest of a frame transmission.
+
+Binary Exponential Backoff:
+- After n collisions, choose random K from {0, 1, ..., 2^m−1}, where m=min(n,10).
+- Wait K × 512 bit-times before retrying.
+- 512 bit-times = Ethernet slot time.
+- Backoff interval grows exponentially with collision count to reduce repeated collisions.
+- After repeated failures (16 collisions in Ethernet), give up and report transmission error.
+- CSMA/CD is unnecessary on modern full-duplex switched Ethernet links because each link is point-to-point and has no collisions.
+
+CSMA/CD efficiency approximation:
+Efficiency ≈ 1 / [1 + 5(d_prop/d_trans)]
+where d_prop = maximum propagation delay across LAN; d_trans = time to transmit maximum-size frame.
+
+5. TAKING-TURNS PROTOCOLS
+
+Polling:
+- One master/controller polls nodes in turn; a node may transmit when polled.
+- Eliminates collisions; avoids empty slots from fixed partitioning.
+- Drawbacks: polling delay, overhead, master is a single point of failure.
+
+Token Passing:
+- Special control frame (token) circulates among nodes in fixed order.
+- Only token holder may transmit; after its allowance, passes token to next node.
+- No collisions; decentralized access.
+- Drawbacks: token overhead/delay; lost/corrupt token or failed node can disrupt access; recovery mechanism needed.
+
+6. DOCSIS — CABLE INTERNET MAC
+
+- DOCSIS (Data Over Cable Service Interface Specification): link-layer/MAC protocol for cable Internet access.
+- HFC downstream/upstream channels use frequency division (FDM).
+- Upstream channel divided into minislots (TDM).
+- Cable modem requests upstream transmission opportunities using contention-based request minislots (random access).
+- CMTS (Cable Modem Termination System) schedules upstream data minislots and sends MAP messages announcing allocations.
+- Combines FDM + TDM + random access; collisions may occur in request minislots, not in centrally allocated data slots.
+
+7. MAC ADDRESSES
+
+- MAC address belongs to network adapter/interface, not the host as an abstract device; multi-interface host/router has multiple MAC addresses.
+- Link-layer switches’ host-facing interfaces do not need MAC addresses for transparent frame forwarding.
+- Ethernet/Wi-Fi MAC address = 6 bytes = 48 bits = 2^48 possible addresses; usually hexadecimal.
+- IEEE allocates manufacturer a 24-bit prefix (OUI); manufacturer assigns remaining 24 bits to adapters.
+- MAC address: flat/non-hierarchical; usually fixed to adapter and does not change when host moves networks (software override is possible).
+- IP address: hierarchical; changes with subnet/location.
+- Broadcast MAC = FF:FF:FF:FF:FF:FF.
+- Adapter accepts frame if destination MAC matches its own or is broadcast; otherwise discards it.
+
+8. ARP — IP ADDRESS TO MAC ADDRESS
+
+- ARP (Address Resolution Protocol): maps IPv4 address → MAC address on the same LAN/subnet.
+- Each host/router maintains ARP table: IP address ↔ MAC address + TTL.
+- Typical ARP-cache entry lifetime in textbook example ≈ 20 minutes.
+- If mapping absent:
+  1. Sender broadcasts ARP request in Ethernet frame to FF:FF:FF:FF:FF:FF.
+  2. All adapters on LAN receive request; target interface recognizes its IP address.
+  3. Target sends ARP reply containing its MAC address (unicast to requester).
+  4. Requester caches mapping and sends frame.
+- ARP only resolves local subnet addresses; cannot resolve a remote Internet host’s MAC address.
+- Destination outside local subnet:
+  - Sender ARPs for default gateway’s MAC, NOT remote destination’s MAC.
+  - IP datagram destination remains remote host IP.
+  - Ethernet frame destination is default gateway MAC.
+  - Router removes old frame, routes IP datagram, then creates a new frame using next-hop MAC on outgoing link.
+- ARP is a cross-layer protocol: carries IP + MAC addressing information inside a link-layer frame.
+
+9. ETHERNET FRAME DETAILS
+
+Ethernet frame fields (excluding preamble):
+- Destination MAC: 6 bytes.
+- Source MAC: 6 bytes.
+- Type: 2 bytes; identifies upper-layer protocol (usually IP; can be others).
+- Data: 46–1500 bytes.
+- CRC: 4 bytes.
+- Minimum frame size = 64 bytes; maximum = 1518 bytes (excluding preamble).
+- Ethernet header = 14 bytes; trailer/CRC = 4 bytes.
+- MTU = 1500 bytes; if payload is less than 46 bytes, padding is added; IP total-length field allows receiver to identify actual IP datagram length.
+- Preamble = 8 bytes: 7 bytes 10101010 + 1-byte Start Frame Delimiter (10101011); synchronizes sender/receiver clocks.
+- CRC failure at receiver → frame discarded.
+- Ethernet service is connectionless + unreliable: no link-layer ACK/NAK/retransmission; higher layers such as TCP recover if needed.
+
+Ethernet types/terms:
+- 10/100/1000/10G: nominal link rates in Mbps/Gbps.
+- BASE: baseband signalling.
+- T: twisted-pair cabling in names such as 100BASE-T.
+- Switched full-duplex Ethernet: point-to-point links; no shared collisions, so CSMA/CD not required.
+
+10. LINK-LAYER SWITCHES
+
+- Switch: Layer-2 device; store-and-forward frames based on destination MAC address.
+- Switch table stores (MAC address, switch interface/port, timestamp).
+- Self-learning:
+  1. On frame arrival, learn source MAC → incoming port; refresh timestamp.
+  2. Look up destination MAC.
+  3. Known destination on another port → forward only to that port.
+  4. Known destination on same incoming port → filter/drop (no forwarding).
+  5. Unknown destination or broadcast → flood to all ports except incoming port.
+- Entries age out when inactive; table builds automatically (plug-and-play).
+- Each switch port is a separate collision domain; dedicated full-duplex links improve aggregate throughput.
+- Switches can interconnect LAN segments with different link rates/media.
+- Hub: Physical-Layer repeater; copies incoming bits to all other ports; does not inspect MAC addresses or buffer/store-and-forward frames. All hub-connected devices share one collision domain.
+
+Switch v/s Router:
+- Switch: Layer 2, MAC addressing, flat address, self-learning, plug-and-play; broadcasts/flooding can create loops/storms.
+- Router: Layer 3, IP addressing, hierarchical prefixes, routing-table configuration; separates broadcast domains and can use redundant routed paths.
+
+Spanning Tree Protocol (STP):
+- Builds loop-free logical spanning tree among switches; redundant physical links may be blocked to prevent frame loops/broadcast storms.
+
+Switch security:
+- MAC table poisoning/flooding: attacker sends frames with many fake source MACs to overflow switch table; unknown destinations may then be flooded to many ports.
+
+11. VLANs — VIRTUAL LANs
+
+- VLAN: multiple logical LAN/broadcast domains over one physical switch infrastructure.
+- Port-based VLAN: switch ports assigned to VLANs; broadcast frames stay within their VLAN.
+- VLANs provide traffic separation, management flexibility and security/isolation.
+- Communication between different VLANs requires a router or Layer-3 switch.
+- Trunk port: carries traffic for multiple VLANs between switches/router and switch.
+- IEEE 802.1Q: inserts 4-byte VLAN tag into Ethernet frame.
+  - TPID: 2 bytes; value 0x8100 identifies 802.1Q tag.
+  - TCI: 2 bytes; includes 12-bit VLAN ID + priority bits (and format indicator).
+- Receiving switch uses VLAN ID to deliver frame to correct VLAN; tag removed before delivery to ordinary end host.
+
+12. MPLS — MULTIPROTOCOL LABEL SWITCHING
+
+- MPLS: packet-switched virtual-circuit technology used to interconnect IP routers; link-layer virtualization.
+- Ingress MPLS router classifies packet into forwarding-equivalence class (FEC) and adds short fixed-length label.
+- Core MPLS routers forward using label, not longest-prefix IP lookup; swap incoming label for outgoing label at each hop.
+- Egress router removes label and forwards IP datagram normally.
+- Label-switched path (LSP): sequence of routers/links followed by packets with that label.
+- MPLS can support traffic engineering, QoS and VPN services.
+- MPLS shim header = 32 bits: 20-bit label + 3-bit traffic class/experimental + 1-bit bottom-of-stack + 8-bit TTL.
+
+13. DATA-CENTER NETWORKING
+
+- Data centre: large collection of server racks connected by high-capacity switching fabric; supports cloud applications/services.
+- Rack servers connect to Top-of-Rack (ToR) switches.
+- Hierarchical network can include ToR/access switches, Tier-2 aggregation switches, Tier-1/core switches, access router and border router.
+- Load balancer receives traffic at a public service IP and distributes requests among backend servers based on load.
+- Data-centre design goals: high bandwidth, low delay, scalability, redundancy/availability and manageable cost.
+- Multiple paths and switches provide capacity and resilience; oversubscription can create bottlenecks.
+
+14. A DAY IN THE LIFE OF A WEB REQUEST — INTEGRATED SEQUENCE
+
+DHCP bootstrap (new host):
+- Host initially may have source IP 0.0.0.0 and broadcast destination 255.255.255.255; Ethernet destination FF:FF:FF:FF:FF:FF.
+- DHCP DORA: Discover → Offer → Request → ACK.
+- DHCP uses UDP; client port 68, server port 67.
+- DHCP supplies host IP address, subnet mask/prefix, default-gateway IP and DNS-server IP.
+
+ARP for default gateway:
+- Host knows gateway IP from DHCP but needs gateway MAC.
+- Broadcast ARP request for default gateway; gateway replies with its MAC.
+- For off-subnet destinations, first Ethernet frame is addressed to gateway MAC while IP destination is the remote server.
+
+DNS lookup:
+- Browser needs server IP for URL hostname; sends DNS query via UDP to local DNS server (port 53).
+- Local resolver returns cached result or queries DNS hierarchy; response gives server IP.
+
+TCP + HTTP:
+- Client creates TCP socket to web server (HTTP port 80 in textbook example).
+- TCP 3-way handshake (SYN → SYNACK → ACK).
+- Client sends HTTP GET in TCP segment → IP datagram → Ethernet frame addressed to local gateway MAC.
+- Routers forward using IP destination; inter-AS routing uses BGP where needed.
+- Server TCP demultiplexes to listening/welcome socket, creates connection socket, and HTTP server returns response.
+- Reply travels back; browser reads HTTP response from socket and displays page.
