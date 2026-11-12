@@ -1,0 +1,137 @@
+Network Layer Services:
+1. Logical Addressing: host-to-host delivery and routing
+2. Routing: create a forwarding table
+3. Forwarding: sending to next hop
+4. Fragmentation and Reassembly
+5. Error Handling and Diagnostics: ICMP (Internet Control Message Protocol) - destination unreachable/ time exceeded
+6. Quality of Service (QoS): priority provided to certain packets
+
+Internetworking:
+- Scenarios:
+1. Single LAN
+2. LAN-LAN
+3. LAN-WAN
+4. LAN-WAN-LAN
+- Devices:
+1. Hubs
+2. Bridges
+3. Switches
+4. Routers
+5. Gateways
+
+Best Effort Service Model:
+No guarantees on:
+– successful datagram delivery to destination
+– timing or order of delivery
+– bandwidth available to end-end flow
+
+Service Model Implementation:
+1. IP Protocol: Packet Formatting and Addressing
+2. Routing Protocol: RIP, OSPF, BGP (determine path)
+3. ICMP Protocol: Error Reporting and Host Signalling
+4. Forwarding Table (port to assign)
+
+Services by Network Layer:
+
+At Source:
+1. Packetizing
+2. Finding the logical address of the next hop
+3. Finding the physical (MAC) address of the next hop
+4. Fragmenting the datagram (if necessary)
+
+At Router:
+1. Finding the logical address of the next hop
+2. Finding the physical (MAC) address of the next hop
+3. Fragmenting the datagram (if necessary)
+
+At Destination:
+1. Reassembling the fragmented datagram (if necessary)
+2. Delivering the datagram to the upper layer
+3. Decapsulating the packet
+4. Extracting the original data
+
+Forwarding v/s Routing
+- direct packet (from sender) to outgoing link | define whole path
+- local scope | global scope
+- hardware implementation | software implementation
+- nano seconds | milliseconds
+
+Routing Algorithms Classification
+- Global (all routers have complete topology; USES 'LINK-STATE': RIP (ROUTING INFORMATION PROTOCOL)) and Decentralised (neighbour nodes are defined with cost known; USES 'DISTANCE-VECTOR': OSPF (OPEN SHORTEST PATH FIRST))
+- Static (change slowly over time after several front and back) and Dynamic (change frequently: periodic and as per link cost change)
+
+Features of Routing Algorithms:
+- Correctness: always produce loop-free, valid routes
+- Optimality: shortest / least-cost path based on the chosen metric
+- Minimal Overhead: Lower computation and storage overhead
+- Robustness (Fault Tolerance): Should handle link/node failures
+- Stability: Converges to a stable state quickly after updates
+- Scalable: Handle a large number of nodes
+
+Intra and Inter-Domain Routing
+- An internet can be so large that one routing protocol cannot handle the task of updating the routing tables of all routers. So, an internet is divided into autonomous systems.
+- An autonomous system (AS) is a group of networks and routers under the authority of a single administration.
+- Routing inside an autonomous system is referred to as intra-domain routing.
+- Routing between autonomous systems is referred to as inter-domain routing.
+
+Cost Metrics:
+- Hop Count: Number of router between source and destination
+- Bandwidth: prefer path with higher bandwidth
+- Delay (Latency): used in EIGRP (Enhanced Interior Gateway Routing Protocol)
+- Load
+- Reliability: historical link stability (failure rate & error rate)
+
+Routing Information Protocol (RIP): to be noted 
+Open Shortest Path First (OSPF): to be noted
+
+Distance-Vector v/s Link-State
+Bellman-Ford Algorithm | Dijkstra Algorithm
+View network through perspective of neighbour | Common view of entire network topology
+Frequent and periodic updates | Triggered updates
+Slower convergence | Faster convergence
+Susceptible to routing loops | Not susceptible to routing loops
+Easy to configure and administer | Difficult to configure and administer
+Consumes lot of bandwidth | Consumes less bandwidth
+Passes copies of routing table to neighbouring routers | Passes link-states routing updates to other routers
+
+IP Address:
+- Address designated to every device on the internet.
+- 2^32 binary space separated into 4 bytes (octet configurations)
+- Classful Addressing: placed into classes to identify class of address
+- Class A: Net ID (1) and Host ID (3); Class B: Net ID (2) and Host ID (2); Class C: Net ID (3) and Host ID (1); Class D: Multicast Address; Class E: Reserved for future use;
+- Network Mask: routers in the internet normally use an algorithm to extract a network address from destination address of the packet. 'n' leftmost bits are set to 1 and the remaining '32-n' are set to 0. Network masks have a block size of 2^(32-n). 
+- In classless addressing, there isn't any fixed number of bits for net id and a slash notation is used to provide the value 'n'.
+- Total number of addresses = 2^(32-n); First address starts from the first plausible value of mask with the block size (adding till the last address)
+- Subnetting (Three level addressing): network portion; subnetwork portion; host portion
+- Number of 1s represent Network and Subnet ID and 0s represent Host ID; unlike classful masking, subnet masks are needed to identify subnetwork.
+
+SPECIAL IPv4 ADDRESSES
+1. Network Address
+   Network ID: Specific
+   Host ID: All 0s
+   Usage: None
+2. Direct Broadcast Address
+   Network ID: Specific
+   Host ID: All 1s
+   Usage: Destination
+3. Limited Broadcast Address
+   Network ID: All 1s
+   Host ID: All 1s
+   Usage: Destination
+4. This Host on This Network
+   Network ID: All 0s
+   Host ID: All 0s
+   Usage: Source
+5. Specific Host on This Network
+   Network ID: All 0s
+   Host ID: Specific
+   Usage: Destination
+6. Loopback Address
+   Network ID: 127
+   Host ID: Any
+   Usage: Destination
+
+Private Addresses
+Class A: 10.0.0.0 - 10.255.255.255
+Class B: 172.16.0.0 - 172.31.255.255
+Class C: 192.168.0.0 - 192.168.255.255
