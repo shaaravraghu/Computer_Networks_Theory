@@ -55,8 +55,9 @@ How to Estimate?
 Adaptation?
 - AIMD, AIAD, MIAD, MIMD
 - A: additive; M: multiplicative; I: increase; D: decrease
-- exponentiation until 1/2 of CWND is reached followed by AIMD (fast recovery mechanism)
+- exponentiation until 1/2 of CWND is reached followed by AIMD (congestion avoidance mechanism)
 - Fast Re-transmit
+- Fast Recovery (exponential followed by direct MD)
 
 TCP Versions: 
 - Tahoe → Slow Start, Congestion Avoidance, Fast Retransmit (no Fast Recovery)
