@@ -135,3 +135,206 @@ Private Addresses
 Class A: 10.0.0.0 - 10.255.255.255
 Class B: 172.16.0.0 - 172.31.255.255
 Class C: 192.168.0.0 - 192.168.255.255
+
+NAT (Network Address Translation):
+- Provides mapping between private and universal/global addresses.
+- Private addresses: used for internal communication.
+- Global address: at least one public Internet address used for communication with rest of world.
+- Gateway/NAT router's public IP is globally visible; local endpoint IPs remain private.
+- All datagrams leaving local network have same source IP as gateway.
+
+Address Translation:
+- Outgoing packet → NAT router replaces Source Address with global NAT address.
+- Incoming packet → NAT router replaces Destination Address with private/local address.
+- NAT maintains Translation Table: Private/Local Address ↔ Universal/Global Address.
+- Translation process:
+  1. Make table entry
+  2. Change source address
+  3. Access translation table
+  4. Change destination address
+
+IP DATAGRAM (IPv4 Header):
+- Total datagram size: 20–65,535 bytes
+- Header size: 20–60 bytes
+- Fixed header: 20 bytes
+- Variable part: Options + Padding (0–40 bytes)
+
+IPv4 Header Fields:
+Version: 4 bits
+Header Length (HLEN): 4 bits
+Service Type: 8 bits
+Total Length: 16 bits
+Identification: 16 bits
+Flags: 3 bits
+Fragmentation Offset: 13 bits
+Time To Live (TTL): 8 bits
+Protocol: 8 bits
+Header Checksum: 16 bits
+Source IP Address: 32 bits
+Destination IP Address: 32 bits
+Options + Padding: 0–40 bytes
+
+Service Type:
+- 8 bits
+- TOS bits: D = Minimize Delay; T = Maximize Throughput; R = Maximize Reliability; C = Minimize Cost
+- Precedence subfield: part of IPv4 but never used
+- Used to indicate desired service characteristics.
+
+FRAGMENTATION:
+- Datagram can travel through networks having different MTUs.
+- Router: decapsulates IP datagram → processes it → encapsulates it into another frame.
+- Frame format/size depends on physical network protocol.
+- MTU = Maximum Transfer Unit.
+- Ethernet MTU = 1500 bytes
+- FDDI MTU = 4352 bytes
+- PPP MTU = 296 bytes
+- Datagram size must be ≤ MTU.
+- If datagram > MTU → fragmented.
+- Each fragment gets its own header; most fields repeated, some changed.
+- A fragment can itself be fragmented if next network has smaller MTU.
+- Datagram may be fragmented multiple times before reaching destination.
+- Required header parts are copied into every fragment.
+- Only data is fragmented.
+
+Fragmentation Fields:
+1. Identification: 16 bits
+   - Identifies datagram originating from source host.
+   - Identification + Source IP uniquely identify a datagram leaving source.
+   - Same Identification value is copied into all fragments.
+   - Fragments with same Identification are assembled into one datagram.
+
+2. Flags: 3 bits
+   - 1st bit: Reserved
+   - 2nd bit: DF (Don't Fragment)
+     - DF=1 → datagram must not be fragmented; if it cannot pass → discard.
+     - DF=0 → datagram may be fragmented.
+   - 3rd bit: MF (More Fragments)
+     - MF=1 → more fragments follow.
+     - MF=0 → last/only fragment.
+
+3. Fragmentation Offset: 13 bits
+   - Position of fragment data relative to original datagram.
+   - Measured in units of 8 bytes.
+   - First byte number = Fragment Offset × 8.
+
+Fragmentation Numericals:
+- M=0 → last fragment OR non-fragmented packet; cannot determine whether original was fragmented.
+- Offset = 100 → first byte = 100 × 8 = 800.
+- Example: First 8 bits = 01000010
+  - Version = 0100 = 4 → correct
+  - HLEN = 0010 = 2 → header length = 2×4 = 8 bytes
+  - Minimum IPv4 header = 20 bytes → corrupted/invalid packet → discard.
+- Example: 45000028000100000102...
+  - TTL is 9th byte = 01
+  - Packet can travel only 1 hop.
+- Fragmentation example:
+  A→B MTU=520, B→C MTU=320, C→D MTU=270
+  Original data = 1000 bytes; IP header = 20 bytes
+  A→B payload = 500 bytes.
+
+CHECKSUM:
+- IPv4 checksum covers ONLY the header, not data.
+- Reasons:
+  1. Upper-layer protocols already have checksum covering whole packet.
+  2. IP header changes at every router; data does not.
+
+OPTIONS:
+- IPv4 header consists of fixed part + variable part.
+- Fixed part = 20 bytes.
+- Variable part = Options; maximum 40 bytes.
+- Options are NOT required.
+- Used for network testing and debugging.
+
+IPv6:
+- Address = 128 bits = 16 bytes.
+- Dotted-decimal notation is too long.
+- Colon Hexadecimal Notation used for readability.
+- 128 bits divided into 8 sections, each 16 bits (2 bytes).
+- Example format: FDEC:BA98:7654:3210:ADBF:BBFF:2922:FFFF
+
+IPv6 Desirable Features:
+- Supports billions of hosts
+- Faster processing at routers
+- Supports real-time applications
+- Provides security
+- Multicast support
+- Mobility support
+
+IPv4 v/s IPv6:
+IPv4 | IPv6
+32-bit address | 128-bit address
+Dotted decimal | Hexadecimal
+2^32 = 4,294,967,296 addresses | 2^128 addresses
+Class-based addressing | Classless addressing
+Deployed: 1981 | Deployed: 1999
+
+IPv4 Header v/s IPv6 Header:
+IPv4 Header Length → Eliminated in IPv6; fixed header length
+IPv4 Service Type → Traffic Class + Flow Label
+IPv4 Total Length → Payload Length
+IPv4 Identification + Flags + Fragment Offset → Fragmentation Extension Header
+IPv4 TTL → Hop Limit
+IPv4 Protocol → Next Header
+IPv4 Header Checksum → Eliminated
+IPv4 Options → Extension Headers
+
+What's missing in IPv6:
+- No checksum → faster router processing
+- No fragmentation/reassembly at intermediate nodes → performed at source
+- No options in base header → handled using extension/next-header mechanism
+
+IPv6 Traffic Class:
+- Default/Best-Effort (BE): DSCP = 000000 = decimal 0
+  - Normal traffic; e.g., web browsing, email.
+- Expedited Forwarding (EF): DSCP = 101110 = decimal 46
+  - High-priority, low-latency traffic
+  - Used for VoIP, video conferencing, online gaming
+
+ROUTERS:
+- Layer-3 relay operating at Network Layer.
+- Can link two dissimilar LANs.
+- Isolates LANs into subnets to manage/control network traffic.
+- 4 basic components:
+  1. Input Ports
+  2. Output Ports
+  3. Routing Processor
+  4. Switching Fabric
+
+ROUTER ARCHITECTURE:
+- Routing Processor:
+  - Routing + management
+  - Control Plane
+  - Software
+  - Operates in millisecond time frame
+- Switching Fabric:
+  - Forwarding/Data Plane
+  - Hardware
+  - Operates in nanosecond time frame
+- Input Ports → Switching Fabric → Output Ports
+
+Input Port:
+- Performs Physical Layer + Data-Link Layer functions.
+- Contains buffer to hold packet before forwarding to switching fabric.
+
+Output Port:
+- Performs same functions as input port, but in reverse order.
+
+Routing Processor:
+- Performs Network Layer functions.
+- Performs table lookup.
+
+Switching Fabric:
+- Moves packet from input queue → output queue.
+- Uses specialized mechanisms.
+- Realized using multistage interconnection networks.
+
+ROUTING TABLE:
+- Longest Prefix Matching:
+  - For a given destination address, choose forwarding-table entry having the longest matching address prefix.
+
+ROUTER FUNCTIONALITY:
+Upon receiving a packet:
+1. Lookup forwarding table
+2. Update destination MAC address
+3. Decrement TTL
+4. Forward packet to output port
