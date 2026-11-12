@@ -56,7 +56,7 @@ Adaptation?
 - AIMD, AIAD, MIAD, MIMD
 - A: additive; M: multiplicative; I: increase; D: decrease
 - exponentiation until 1/2 of CWND is reached followed by AIMD (congestion avoidance mechanism)
-- Fast Re-transmit
+- Fast Re-transmit (TRIPLE DUPLICATE ACKNOWLEDGEMENT)
 - Fast Recovery (exponential followed by direct MD)
 
 TCP Versions: 
